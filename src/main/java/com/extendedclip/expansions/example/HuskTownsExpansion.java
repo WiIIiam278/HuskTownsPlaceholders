@@ -126,9 +126,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 }
             case "current_location_town_type":
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    return chunk.getTown() + " (" +
-                        chunk.getChunkType().toString().toLowerCase(Locale.ROOT) + ")";
+                    return huskTownsAPI.getClaimedChunk(player.getLocation()).getChunkType().toString().toLowerCase(Locale.ROOT);
                 } else {
                     return "Wilderness";
                 }
