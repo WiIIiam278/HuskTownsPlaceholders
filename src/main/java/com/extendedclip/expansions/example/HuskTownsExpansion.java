@@ -4,11 +4,14 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.william278.husktowns.HuskTownsAPI;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Locale;
 
 public class HuskTownsExpansion extends PlaceholderExpansion {
 
@@ -50,7 +53,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer offlinePlayer, String params) {
-        if (offlinePlayer == null || !offlinePlayer.isOnline()) { return "Player not online"; }
+        if (offlinePlayer == null || !offlinePlayer.isOnline()) {
+            return "Player not online";
+        }
 
         Player player = offlinePlayer.getPlayer();
         HuskTownsAPI huskTownsAPI = HuskTownsAPI.getInstance();
@@ -59,6 +64,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
         }
         String town;
         switch (params) {
+            case "town":
             case "town_name":
                 town = huskTownsAPI.getPlayerTown(player);
                 if (town == null) {
@@ -70,13 +76,20 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 if (role == null) {
                     return "Not in town";
                 }
-                return role.toString().replace("_", " ");
+                return role.toString().replace("_", " ").toLowerCase(Locale.ROOT);
             case "town_mayor":
                 town = huskTownsAPI.getPlayerTown(player);
                 if (town == null) {
                     return "Not in town";
                 }
                 return huskTownsAPI.getTownMayor(town);
+            case "town_colour":
+            case "town_color":
+                if (huskTownsAPI.isInTown(player)) {
+                    return Town.getTownColorHex(huskTownsAPI.getPlayerTown(player));
+                } else {
+                    return "#fffff";
+                }
             case "town_members":
                 town = huskTownsAPI.getPlayerTown(player);
                 if (town == null) {
@@ -105,11 +118,17 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 } else {
                     return "No";
                 }
+            case "current_location_can_build_mark":
+                if (huskTownsAPI.canBuild(player, player.getLocation())) {
+                    return "✔";
+                } else {
+                    return "✘";
+                }
             case "current_location_town_type":
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
                     return chunk.getTown() + " (" +
-                        chunk.getChunkType().toString() + ")";
+                        chunk.getChunkType().toString().toLowerCase(Locale.ROOT) + ")";
                 } else {
                     return "Wilderness";
                 }
