@@ -5,7 +5,7 @@
 
     <groupId>com.extendedclip.placeholderapi.expansions</groupId>
     <artifactId>husktowns-expansion</artifactId>
-    <version>1.0.2</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>HuskTowns-Expansion</name>
