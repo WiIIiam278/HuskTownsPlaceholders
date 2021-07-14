@@ -17,8 +17,6 @@ import java.util.UUID;
 
 public class HuskTownsExpansion extends PlaceholderExpansion {
 
-    private final String VERSION = getClass().getPackage().getImplementationVersion();
-
     @Override
     public String getIdentifier() {
         return "husktowns";
@@ -31,7 +29,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return VERSION;
+        return "1.1.1";
     }
 
     @Override
