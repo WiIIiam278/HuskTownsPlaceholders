@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Locale;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 public class HuskTownsExpansion extends PlaceholderExpansion {
@@ -29,7 +30,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return "1.1.1";
+        return "1.1.2";
     }
 
     @Override
@@ -110,11 +111,11 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 if (town == null) {
                     return "Not in town";
                 }
-                StringBuilder builder = new StringBuilder();
+                StringJoiner memberList = new StringJoiner(", ");
                 for (String user : huskTownsAPI.getPlayersInTown(town)) {
-                    builder.append(user).append(", ");
+                    memberList.add(user);
                 }
-                return builder.substring(0, builder.toString().length() - 2);
+                return memberList.toString();
             case "town_member_count":
                 if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
