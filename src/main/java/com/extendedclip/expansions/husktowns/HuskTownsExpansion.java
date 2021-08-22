@@ -1,40 +1,41 @@
-package com.extendedclip.expansions.example;
+package com.extendedclip.expansions.husktowns;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.HuskTownsAPI;
 import me.william278.husktowns.object.cache.Cache;
-import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
-import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
 public class HuskTownsExpansion extends PlaceholderExpansion {
 
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "husktowns";
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return "William278";
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return "1.1.2";
     }
 
     @Override
-    public String getRequiredPlugin() {
+    public @NotNull String getRequiredPlugin() {
         return "HuskTowns";
     }
 
@@ -53,12 +54,15 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onRequest(OfflinePlayer offlinePlayer, String params) {
+    public String onRequest(OfflinePlayer offlinePlayer, @NotNull String params) {
         if (offlinePlayer == null || !offlinePlayer.isOnline()) {
-            return "Player not online";
+            return "Invalid player";
         }
 
         Player player = offlinePlayer.getPlayer();
+        if (player == null) {
+            return "Player not online";
+        }
         HuskTownsAPI huskTownsAPI = HuskTownsAPI.getInstance();
         if (huskTownsAPI == null) {
             return "HuskTowns is not enabled";
@@ -71,15 +75,12 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                     return "(Loading...)";
                 }
                 town = huskTownsAPI.getPlayerTown(player);
-                if (town == null) {
-                    return "Not in town";
-                }
-                return town;
+                return Objects.requireNonNullElse(town, "Not in town");
             case "town_role":
                 if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
                 }
-                TownRole role = huskTownsAPI.getPlayerTownRole(player);
+                Town.TownRole role = huskTownsAPI.getPlayerTownRole(player);
                 if (role == null) {
                     return "Not in town";
                 }
@@ -134,6 +135,12 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 } else {
                     return "Wilderness";
                 }
+            case "current_location_town_color":
+                if (huskTownsAPI.isStandingInTown(player)) {
+                    return Town.getTownColorHex(huskTownsAPI.getTownAt(player.getLocation()));
+                } else {
+                    return "#2e2e2e";
+                }
             case "current_location_can_build":
                 if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
@@ -179,7 +186,14 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    return chunk.getFormattedTime();
+                    return chunk.getFormattedClaimTime();
+                } else {
+                    return "Not claimed";
+                }
+            case "current_location_claimer":
+                if (huskTownsAPI.isClaimed(player.getLocation())) {
+                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
+                    return HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
                 } else {
                     return "Not claimed";
                 }
@@ -200,6 +214,17 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 } else {
                     return "Not claimed";
                 }
+            case "current_location_plot_owner":
+                if (huskTownsAPI.isClaimed(player.getLocation())) {
+                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
+                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
+                        return HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner());
+                    } else {
+                        return "Not a plot chunk";
+                    }
+                } else {
+                    return "Not claimed";
+                }
             case "current_location_plot_owner_uuid":
                 if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
@@ -209,7 +234,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    if (chunk.getChunkType() == ChunkType.PLOT) {
+                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                         return chunk.getPlotChunkOwner().toString();
                     } else {
                         return "Not a plot chunk";
@@ -217,6 +242,28 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 } else {
                     return "Not claimed";
                 }
+            case "current_location_town_members":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                town = huskTownsAPI.getTownAt(player.getLocation());
+                if (town == null) {
+                    return "Not in town";
+                }
+                StringJoiner currentLocationMemberList = new StringJoiner(", ");
+                for (String user : huskTownsAPI.getPlayersInTown(town)) {
+                    currentLocationMemberList.add(user);
+                }
+                return currentLocationMemberList.toString();
+            case "current_location_town_member_count":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                town = huskTownsAPI.getTownAt(player.getLocation());
+                if (town == null) {
+                    return "Not in town";
+                }
+                return Integer.toString(huskTownsAPI.getPlayersInTown(town).size());
             default:
                 return null;
         }
