@@ -242,6 +242,44 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 } else {
                     return "Not claimed";
                 }
+            case "current_location_plot_members":
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.isClaimed(player.getLocation())) {
+                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
+                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
+                        StringJoiner currentLocationMemberList = new StringJoiner(", ");
+                        for (UUID user : chunk.getPlotChunkMembers()) {
+                            currentLocationMemberList.add(HuskTowns.getPlayerCache().getPlayerUsername(user));
+                        }
+                        return currentLocationMemberList.toString();
+                    } else {
+                        return "Not a plot chunk";
+                    }
+                } else {
+                    return "Not claimed";
+                }
+            case "current_location_plot_member_count":
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.isClaimed(player.getLocation())) {
+                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
+                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
+                        return Integer.toString(chunk.getPlotChunkMembers().size());
+                    } else {
+                        return "Not a plot chunk";
+                    }
+                } else {
+                    return "Not claimed";
+                }
             case "current_location_town_members":
                 if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
