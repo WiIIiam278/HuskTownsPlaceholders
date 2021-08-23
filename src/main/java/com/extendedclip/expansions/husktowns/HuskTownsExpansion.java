@@ -127,6 +127,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 }
                 return Integer.toString(huskTownsAPI.getPlayersInTown(town).size());
             case "current_location_town":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
                 if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
                 }
@@ -136,6 +139,12 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                     return "Wilderness";
                 }
             case "current_location_town_color":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
                 if (huskTownsAPI.isStandingInTown(player)) {
                     return Town.getTownColorHex(huskTownsAPI.getTownAt(player.getLocation()));
                 } else {
@@ -191,6 +200,12 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                     return "Not claimed";
                 }
             case "current_location_claimer":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
                     return HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
@@ -214,7 +229,25 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 } else {
                     return "Not claimed";
                 }
+            case "current_location_town_mayor":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                town = huskTownsAPI.getTownAt(player.getLocation());
+                if (town == null) {
+                    return "Not in town";
+                }
+                return huskTownsAPI.getTownMayor(town);
             case "current_location_plot_owner":
+                if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
                     if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
@@ -284,6 +317,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
                 }
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
                 town = huskTownsAPI.getTownAt(player.getLocation());
                 if (town == null) {
                     return "Not in town";
@@ -295,6 +331,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 return currentLocationMemberList.toString();
             case "current_location_town_member_count":
                 if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
+                    return "(Loading...)";
+                }
+                if (huskTownsAPI.getClaimedCacheStatus() != Cache.CacheStatus.LOADED) {
                     return "(Loading...)";
                 }
                 town = huskTownsAPI.getTownAt(player.getLocation());
