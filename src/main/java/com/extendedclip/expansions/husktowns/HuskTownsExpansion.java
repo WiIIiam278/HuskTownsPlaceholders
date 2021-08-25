@@ -102,7 +102,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 if (huskTownsAPI.isInTown(player)) {
                     return Town.getTownColorHex(huskTownsAPI.getPlayerTown(player));
                 } else {
-                    return "#fffff";
+                    return "#ffffff";
                 }
             case "town_members":
                 if (huskTownsAPI.getPlayerCacheStatus() != Cache.CacheStatus.LOADED) {
