@@ -1,4 +1,4 @@
-package com.extendedclip.expansions.husktowns;
+package me.william278.husktowns.expansion;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.william278.husktowns.HuskTownsAPI;
