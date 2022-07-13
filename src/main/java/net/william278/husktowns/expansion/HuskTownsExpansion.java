@@ -1,9 +1,9 @@
-package me.william278.husktowns.expansion;
+package net.william278.husktowns.expansion;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.william278.husktowns.HuskTownsAPI;
-import me.william278.husktowns.chunk.ClaimedChunk;
-import me.william278.husktowns.town.TownRole;
+import net.william278.husktowns.HuskTownsAPI;
+import net.william278.husktowns.chunk.ClaimedChunk;
+import net.william278.husktowns.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public class HuskTownsExpansion extends PlaceholderExpansion {
 
     @Override
@@ -29,7 +30,7 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "1.2.2";
+        return "1.3";
     }
 
     @Override
@@ -148,7 +149,6 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     return huskTownsAPI.getTownAt(player.getLocation());
@@ -158,11 +158,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_town_color":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isStandingInTown(player)) {
                     return huskTownsAPI.getTownColorHex(huskTownsAPI.getTownAt(player.getLocation()));
@@ -172,11 +170,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_can_build":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.canBuild(player, player.getLocation())) {
                     return huskTownsAPI.getMessageString("placeholder_yes");
@@ -198,11 +194,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_claim_type":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     return huskTownsAPI.getClaimedChunk(player.getLocation()).getChunkType().toString().toLowerCase(Locale.ROOT);
@@ -212,11 +206,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_claim_time":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -227,11 +219,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_claimer":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -242,11 +232,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_claimer_uuid":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -261,11 +249,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_town_mayor":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 town = huskTownsAPI.getTownAt(player.getLocation());
                 if (town == null) {
@@ -275,11 +261,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_plot_owner":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -297,11 +281,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_plot_owner_uuid":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -319,11 +301,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_plot_members":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -345,11 +325,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_plot_member_count":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (huskTownsAPI.isClaimed(player.getLocation())) {
                     ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
@@ -364,11 +342,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_town_members":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 town = huskTownsAPI.getTownAt(player.getLocation());
                 if (town == null) {
@@ -382,11 +358,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_town_member_count":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 town = huskTownsAPI.getTownAt(player.getLocation());
                 if (town == null) {
@@ -396,11 +370,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_town_coffer_balance":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 town = huskTownsAPI.getTownAt(player.getLocation());
                 if (town == null) {
@@ -410,11 +382,9 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
             case "current_location_town_level":
                 if (!huskTownsAPI.isPlayerCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 if (!huskTownsAPI.isClaimCacheLoaded()) {
                     return huskTownsAPI.getMessageString("placeholder_loading");
-
                 }
                 town = huskTownsAPI.getTownAt(player.getLocation());
                 if (town == null) {

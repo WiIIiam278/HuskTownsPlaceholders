@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.william278.husktowns.expansion</groupId>
+    <groupId>net.william278.husktowns.expansion</groupId>
     <artifactId>husktowns-expansion</artifactId>
-    <version>1.2.2</version>
+    <version>1.3</version>
     <packaging>jar</packaging>
 
     <name>HuskTowns-Expansion</name>
@@ -48,9 +48,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.WiIIiam278</groupId>
+            <groupId>net.william278</groupId>
             <artifactId>HuskTowns</artifactId>
-            <version>1.5.4</version>
+            <version>1.8</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
