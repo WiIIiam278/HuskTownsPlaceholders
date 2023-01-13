@@ -1,14 +1,8 @@
-[buildImg]: http://ci.extendedclip.com/buildStatus/icon?job=Example-Expansion
-[build]: http://ci.extendedclip.com/job/Example-Expansion/
-[how to hook into PlaceholderAPI]: https://github.com/PlaceholderAPI/PlaceholderAPI/wiki/Hook-into-PlaceholderAPI
-[how to create your own expansion]: https://github.com/PlaceholderAPI/PlaceholderAPI/wiki/PlaceholderExpansion
-[Discord]: https://helpch.at/discord
+# HuskTowns Placeholders
+[![Support Discord](https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/tVYhJfyDWG)
 
-# Example-Expansion
-[![buildImg]][build]
+**HuskTowns Placeholders** is the PlaceholderAPI expansion for [HuskTowns v2.x+](https://github.com/WiIIiam278/HuskTowns).
 
-An example expansion for PlaceholderAPI.
+You can download the expansion from the [PlaceholderAPI eCloud](https://api.extendedclip.com/expansions/huskhomes/) using the following command: `/papi ecloud download husktowns`.
 
-## Creating own expansions
-We offer a detailed tutorial about [how to hook into PlaceholderAPI] but also about [how to create your own expansion].  
-If you need any help, join our [Discord] for support.
+You can view a list of available placeholders on the [HuskTowns docs](https://william278.net/docs/husktowns/placeholder-support).

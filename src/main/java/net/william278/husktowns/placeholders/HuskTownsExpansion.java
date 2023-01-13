@@ -1,13 +1,12 @@
-package net.william278.husktowns.expansion;
+package net.william278.husktowns.placeholders;
 
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.william278.husktowns.HuskTownsAPI;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.town.TownRole;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -15,41 +14,39 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+/**
+ * PlaceholderAPI expansion for HuskTowns v2.x
+ */
 @SuppressWarnings("unused")
 public class HuskTownsExpansion extends PlaceholderExpansion {
 
+    @NotNull
     @Override
-    public @NotNull String getIdentifier() {
+    public String getIdentifier() {
         return "husktowns";
     }
 
+    @NotNull
     @Override
-    public @NotNull String getAuthor() {
+    public String getAuthor() {
         return "William278";
     }
 
+    @NotNull
     @Override
-    public @NotNull String getVersion() {
-        return "1.3";
+    public String getVersion() {
+        return "2.0";
     }
 
+    @NotNull
     @Override
-    public @NotNull String getRequiredPlugin() {
+    public String getRequiredPlugin() {
         return "HuskTowns";
     }
 
-    @Override
-    public boolean canRegister() {
-        return Bukkit.getPluginManager().getPlugin(getRequiredPlugin()) != null;
-    }
-
-    @Override
-    public boolean register() {
-        Plugin huskTowns = Bukkit.getPluginManager().getPlugin(getRequiredPlugin());
-        if (huskTowns != null) {
-            return super.register();
-        }
-        return false;
+    @NotNull
+    private String getBooleanValue(final boolean bool) {
+        return bool ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
     }
 
     @Override
