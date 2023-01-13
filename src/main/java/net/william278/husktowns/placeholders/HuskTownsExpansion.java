@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * PlaceholderAPI expansion for HuskTowns v2.x
@@ -203,11 +204,25 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                                     .orElse("Not a plot");
                         }
 
-                        final StringJoiner joiner = new StringJoiner(", ");
-                        for (UUID member : claim.getPlotMembers()) {
-                            joiner.add(api.getUsername(member).join().orElse("?"));
+                        return claim.getPlotMembers().stream()
+                                .map(user -> api.getUsername(user).join().orElse("?"))
+                                .collect(Collectors.joining(", "));
+                    })
+                    .orElse(api.getRawLocale("placeholder_not_claimed")
+                            .orElse("Not claimed"));
+
+            case "current_location_plot_managers" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::claim)
+                    .map(claim -> {
+                        if (claim.getType() == Claim.Type.PLOT) {
+                            return api.getRawLocale("placeholder_not_a_plot")
+                                    .orElse("Not a plot");
                         }
-                        return joiner.toString();
+
+                        return claim.getPlotMembers().stream()
+                                .filter(claim::isPlotManager)
+                                .map(user -> api.getUsername(user).join().orElse("?"))
+                                .collect(Collectors.joining(", "));
                     })
                     .orElse(api.getRawLocale("placeholder_not_claimed")
                             .orElse("Not claimed"));
