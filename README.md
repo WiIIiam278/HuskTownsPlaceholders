@@ -3,6 +3,6 @@
 
 **HuskTowns Placeholders** is the PlaceholderAPI expansion for [HuskTowns v2.x+](https://github.com/WiIIiam278/HuskTowns).
 
-You can download the expansion from the [PlaceholderAPI eCloud](https://api.extendedclip.com/expansions/huskhomes/) using the following command: `/papi ecloud download husktowns`.
+You can download the expansion from the [PlaceholderAPI eCloud](https://api.extendedclip.com/expansions/husktowns/) using the following command: `/papi ecloud download husktowns`.
 
-You can view a list of available placeholders on the [HuskTowns docs](https://william278.net/docs/husktowns/placeholder-support).
+You can view a list of available placeholders on the [HuskTowns docs](https://william278.net/docs/husktowns/placeholders).
