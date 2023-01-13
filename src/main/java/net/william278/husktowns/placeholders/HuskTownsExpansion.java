@@ -226,6 +226,13 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
                     .orElse(api.getRawLocale("placeholder_not_claimed")
                             .orElse("Not claimed"));
 
+            case "current_location_town_level_up_cost" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::town)
+                    .map(town -> api.getPlugin().getLevels().getLevelUpCost(town.getLevel()))
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
             case "current_location_town_max_claims" -> api.getClaimAt(player.getPosition())
                     .map(TownClaim::town)
                     .map(town -> town.getMaxClaims(api.getPlugin()))
