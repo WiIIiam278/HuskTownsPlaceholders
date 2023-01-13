@@ -2,15 +2,18 @@ package net.william278.husktowns.placeholders;
 
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import net.william278.husktowns.HuskTownsAPI;
-import net.william278.husktowns.chunk.ClaimedChunk;
-import net.william278.husktowns.town.TownRole;
+import net.william278.husktowns.api.HuskTownsAPI;
+import net.william278.husktowns.claim.Claim;
+import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.listener.Operation;
+import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Role;
+import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -19,6 +22,8 @@ import java.util.UUID;
  */
 @SuppressWarnings("unused")
 public class HuskTownsExpansion extends PlaceholderExpansion {
+
+    private HuskTownsAPI api;
 
     @NotNull
     @Override
@@ -45,352 +50,198 @@ public class HuskTownsExpansion extends PlaceholderExpansion {
     }
 
     @NotNull
-    private String getBooleanValue(final boolean bool) {
+    private String getBooleanValue(boolean bool) {
         return bool ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
     }
 
     @Override
-    public String onRequest(OfflinePlayer offlinePlayer, @NotNull String params) {
-        HuskTownsAPI huskTownsAPI = HuskTownsAPI.getInstance();
-        if (huskTownsAPI == null) {
-            return "HuskTowns is not enabled";
+    public boolean register() {
+        if (super.register()) {
+            api = HuskTownsAPI.getInstance();
+            return true;
         }
-        if (offlinePlayer == null) {
-            return huskTownsAPI.getMessageString("placeholder_invalid_player");
+        return false;
+    }
+
+    @Override
+    public String onRequest(@Nullable OfflinePlayer offlinePlayer, @NotNull String params) {
+        if (api == null || !api.isLoaded()) {
+            return api == null ? "N/A" : api.getRawLocale("not_applicable").orElse("N/A");
         }
 
-        Player player = offlinePlayer.getPlayer();
-        if (player == null) {
-            return huskTownsAPI.getMessageString("placeholder_player_offline");
+        // Ensure the player is online
+        if (offlinePlayer == null || !offlinePlayer.isOnline()) {
+            return api.getRawLocale("placeholder_player_offline")
+                    .orElse("Player offline");
         }
-        String town;
-        switch (params) {
-            case "town":
-            case "town_name":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getPlayerTown(player);
-                return Objects.requireNonNullElse(town, huskTownsAPI.getMessageString("placeholder_not_in_town"));
-            case "town_role":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                TownRole role = huskTownsAPI.getPlayerTownRole(player);
-                if (role == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return role.toString().replace("_", " ").toLowerCase(Locale.ROOT);
-            case "town_mayor":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getPlayerTown(player);
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return huskTownsAPI.getTownMayor(town);
-            case "town_colour":
-            case "town_color":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading_color");
-                }
-                if (huskTownsAPI.isInTown(player)) {
-                    return huskTownsAPI.getTownColorHex(huskTownsAPI.getPlayerTown(player));
-                } else {
-                    return "#ffffff";
-                }
-            case "town_members":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getPlayerTown(player);
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                StringJoiner memberList = new StringJoiner(", ");
-                for (String user : huskTownsAPI.getPlayersInTown(town)) {
-                    memberList.add(user);
-                }
-                return memberList.toString();
-            case "town_member_count":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getPlayerTown(player);
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return Integer.toString(huskTownsAPI.getPlayersInTown(town).size());
-            case "town_coffer_balance":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getPlayerTown(player);
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return Double.toString(huskTownsAPI.getTownBalance(town));
-            case "town_level":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getPlayerTown(player);
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return Integer.toString(huskTownsAPI.getTownLevel(town));
-            case "current_location_town":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    return huskTownsAPI.getTownAt(player.getLocation());
-                } else {
-                    return "Wilderness";
-                }
-            case "current_location_town_color":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isStandingInTown(player)) {
-                    return huskTownsAPI.getTownColorHex(huskTownsAPI.getTownAt(player.getLocation()));
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_wilderness_color");
-                }
-            case "current_location_can_build":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.canBuild(player, player.getLocation())) {
-                    return huskTownsAPI.getMessageString("placeholder_yes");
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_no");
-                }
-            case "current_location_can_build_mark":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading_icon");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading_icon");
-                }
-                if (huskTownsAPI.canBuild(player, player.getLocation())) {
-                    return huskTownsAPI.getMessageString("placeholder_tick");
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_cross");
-                }
-            case "current_location_claim_type":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    return huskTownsAPI.getClaimedChunk(player.getLocation()).getChunkType().toString().toLowerCase(Locale.ROOT);
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_wilderness");
-                }
-            case "current_location_claim_time":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    return chunk.getFormattedClaimTime();
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_claimer":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    return huskTownsAPI.getPlayerUsername(chunk.getClaimerUUID());
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_claimer_uuid":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    UUID chunkClaimerUUID = chunk.getClaimerUUID();
-                    if (chunkClaimerUUID == null) {
-                        return huskTownsAPI.getMessageString("placeholder_not_applicable");
-                    }
-                    return chunkClaimerUUID.toString();
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_town_mayor":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getTownAt(player.getLocation());
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return huskTownsAPI.getTownMayor(town);
-            case "current_location_plot_owner":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                        if (chunk.getPlotChunkOwner() == null) {
-                            return huskTownsAPI.getMessageString("placeholder_vacant");
+
+        // Return the requested placeholder
+        final OnlineUser player = api.getOnlineUser(offlinePlayer.getPlayer());
+        return switch (params) {
+            case "town_name" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getName)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_role" -> api.getUserTown(player)
+                    .map(Member::role)
+                    .map(Role::getName)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_mayor" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getMayor)
+                    .map(uuid -> api.getUsername(uuid).join().orElse("?"))
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_color" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getColorRgb)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_members" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getMembers)
+                    .map(members -> {
+                        StringJoiner joiner = new StringJoiner(", ");
+                        for (UUID member : members.keySet()) {
+                            joiner.add(api.getUsername(member).join().orElse("?"));
                         }
-                        return huskTownsAPI.getPlayerUsername(chunk.getPlotChunkOwner());
-                    } else {
-                        return huskTownsAPI.getMessageString("placeholder_not_a_plot_chunk");
-                    }
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_plot_owner_uuid":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                        if (chunk.getPlotChunkOwner() == null) {
-                            return huskTownsAPI.getMessageString("placeholder_vacant");
+                        return joiner.toString();
+                    })
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_member_count" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getMembers)
+                    .map(members -> String.valueOf(members.size()))
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_claim_count" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getClaimCount)
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_max_claims" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(town -> town.getMaxClaims(api.getPlugin()))
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_max_members" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(town -> town.getMaxMembers(api.getPlugin()))
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_money" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getMoney)
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_level_up_cost" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(town -> api.getPlugin().getLevels().getLevelUpCost(town.getLevel()))
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_level" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(Town::getLevel)
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "town_max_level" -> api.getUserTown(player)
+                    .map(Member::town)
+                    .map(town -> api.getPlugin().getLevels().getMaxLevel())
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_in_town")
+                            .orElse("Not in town"));
+
+            case "current_location_town" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::town)
+                    .map(Town::getName)
+                    .orElse(api.getRawLocale("placeholder_wilderness")
+                            .orElse("Wilderness"));
+
+            case "current_location_can_build" -> getBooleanValue(api.isOperationAllowed(
+                    Operation.of(player, Operation.Type.BLOCK_PLACE, player.getPosition())));
+
+            case "current_location_can_interact" -> getBooleanValue(api.isOperationAllowed(
+                    Operation.of(player, Operation.Type.BLOCK_INTERACT, player.getPosition())));
+
+            case "current_location_can_open_containers" -> getBooleanValue(api.isOperationAllowed(
+                    Operation.of(player, Operation.Type.CONTAINER_OPEN, player.getPosition())));
+
+            case "current_location_claim_type" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::claim)
+                    .map(Claim::getType)
+                    .map(Claim.Type::name)
+                    .map(String::toLowerCase)
+                    .orElse(api.getRawLocale("placeholder_wilderness")
+                            .orElse("Wilderness"));
+
+            case "current_location_plot_members" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::claim)
+                    .map(claim -> {
+                        if (claim.getType() == Claim.Type.PLOT) {
+                            return api.getRawLocale("placeholder_not_a_plot")
+                                    .orElse("Not a plot");
                         }
-                        return chunk.getPlotChunkOwner().toString();
-                    } else {
-                        return huskTownsAPI.getMessageString("placeholder_not_a_plot_chunk");
-                    }
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_plot_members":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                        if (chunk.getPlotChunkOwner() == null) {
-                            return huskTownsAPI.getMessageString("placeholder_vacant");
+
+                        final StringJoiner joiner = new StringJoiner(", ");
+                        for (UUID member : claim.getPlotMembers()) {
+                            joiner.add(api.getUsername(member).join().orElse("?"));
                         }
-                        StringJoiner currentLocationMemberList = new StringJoiner(", ");
-                        for (UUID user : chunk.getPlotChunkMembers()) {
-                            currentLocationMemberList.add(huskTownsAPI.getPlayerUsername(user));
-                        }
-                        return currentLocationMemberList.toString();
-                    } else {
-                        return huskTownsAPI.getMessageString("placeholder_not_a_plot_chunk");
-                    }
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_plot_member_count":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (huskTownsAPI.isClaimed(player.getLocation())) {
-                    ClaimedChunk chunk = huskTownsAPI.getClaimedChunk(player.getLocation());
-                    if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                        return Integer.toString(chunk.getPlotChunkMembers().size());
-                    } else {
-                        return huskTownsAPI.getMessageString("placeholder_not_a_plot_chunk");
-                    }
-                } else {
-                    return huskTownsAPI.getMessageString("placeholder_not_claimed");
-                }
-            case "current_location_town_members":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getTownAt(player.getLocation());
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                StringJoiner currentLocationMemberList = new StringJoiner(", ");
-                for (String user : huskTownsAPI.getPlayersInTown(town)) {
-                    currentLocationMemberList.add(user);
-                }
-                return currentLocationMemberList.toString();
-            case "current_location_town_member_count":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getTownAt(player.getLocation());
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return Integer.toString(huskTownsAPI.getPlayersInTown(town).size());
-            case "current_location_town_coffer_balance":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getTownAt(player.getLocation());
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return Double.toString(huskTownsAPI.getTownBalance(town));
-            case "current_location_town_level":
-                if (!huskTownsAPI.isPlayerCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                if (!huskTownsAPI.isClaimCacheLoaded()) {
-                    return huskTownsAPI.getMessageString("placeholder_loading");
-                }
-                town = huskTownsAPI.getTownAt(player.getLocation());
-                if (town == null) {
-                    return huskTownsAPI.getMessageString("placeholder_not_in_town");
-                }
-                return Integer.toString(huskTownsAPI.getTownLevel(town));
-            default:
-                return null;
-        }
+                        return joiner.toString();
+                    })
+                    .orElse(api.getRawLocale("placeholder_not_claimed")
+                            .orElse("Not claimed"));
+
+            case "current_location_town_money" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::town)
+                    .map(Town::getMoney)
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_claimed")
+                            .orElse("Not claimed"));
+
+            case "current_location_town_level" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::town)
+                    .map(Town::getLevel)
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_claimed")
+                            .orElse("Not claimed"));
+
+            case "current_location_town_max_claims" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::town)
+                    .map(town -> town.getMaxClaims(api.getPlugin()))
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_claimed")
+                            .orElse("Not claimed"));
+
+            case "current_location_town_max_members" -> api.getClaimAt(player.getPosition())
+                    .map(TownClaim::town)
+                    .map(town -> town.getMaxMembers(api.getPlugin()))
+                    .map(String::valueOf)
+                    .orElse(api.getRawLocale("placeholder_not_claimed")
+                            .orElse("Not claimed"));
+
+            default -> null;
+        };
     }
 
 }
